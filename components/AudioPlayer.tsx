@@ -37,7 +37,7 @@ export default function AudioPlayer() {
                         className="cursor-pointer hover:bg-gray-100 p-2 rounded"
                         onClick={() => playTrack(track)}
                     >
-                        {track.title} - {track.artist}
+                        {track.title}
                     </li>
                 ))}
             </ul>

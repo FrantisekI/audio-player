@@ -34,3 +34,33 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+
+
+```mermaid
+graph TD
+    A[User Interface] -->|Initiates Upload| B(Upload Widget)
+    B -->|Requests Signature| C{API: sign-file}
+    C -->|Returns Signature| B
+    B -->|Uploads File| D[Cloudinary]
+    D -->|Returns File Info| B
+    B -->|Sends File Info| E{API: create-track}
+    E -->|Creates Entry| F[(PostgreSQL Database)]
+    E -->|Returns Track Info| B
+    B -->|Updates UI| A
+
+    subgraph "Frontend"
+    A
+    B
+    end
+
+    subgraph "Backend"
+    C
+    E
+    end
+
+    subgraph "External Services"
+    D
+    F
+    end
+
+```
