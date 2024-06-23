@@ -38,29 +38,31 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/deploym
 
 ```mermaid
 graph TD
-    A[User Interface] -->|Initiates Upload| B(Upload Widget)
-    B -->|Requests Signature| C{API: sign-file}
-    C -->|Returns Signature| B
-    B -->|Uploads File| D[Cloudinary]
-    D -->|Returns File Info| B
-    B -->|Sends File Info| E{API: create-track}
-    E -->|Creates Entry| F[(PostgreSQL Database)]
-    E -->|Returns Track Info| B
-    B -->|Updates UI| A
+    UserInterface[User Interface] -->|Initiates Upload| UploadWidget(Upload Widget)
+    UploadWidget -->|Requests Signature| APIsignFile{API: sign-file}
+    APIsignFile -->|Returns Signature| UploadWidget
+    UploadWidget -->|Uploads File| Cloudinary[(Cloudinary)]
+    Cloudinary -->|Returns File Info| UploadWidget
+    UploadWidget -->|Sends File Info| APIcreateTrack{API: create-track}
+    APIcreateTrack -->|Creates Entry| PostgreSQL[(PostgreSQL Database)]
+    APIcreateTrack -->|Returns Track Info| UploadWidget
+    UploadWidget -->|Updates UI| UserInterface
+    UserInterface -->|Initilize Play| AudioPlayer
 
     subgraph "Frontend"
-    A
-    B
+    UserInterface
+    UploadWidget
+    AudioPlayer
     end
 
     subgraph "Backend"
-    C
-    E
+    APIsignFile
+    APIcreateTrack
     end
 
     subgraph "External Services"
-    D
-    F
+    Cloudinary
+    PostgreSQL
     end
 
 ```
