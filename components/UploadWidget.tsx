@@ -22,13 +22,43 @@ export default function Page() {
 }*/
 "use client";
 import { CldUploadWidget } from 'next-cloudinary';
+import { useState } from 'react';
 
 export default function Page() {
-    const handleUploadSuccess = (result: any, widget: any) => {
+    const [isUploading, setIsUploading] = useState(false);
+
+    const handleUploadSuccess = async (result: any, widget: any) => {
+        setIsUploading(true);
         console.log('Upload result:', result);
-        if (result.info && result.info.createdTrack) {
-            console.log('Created track:', result.info.createdTrack);
+        
+        if (result.info) {
+            const { public_id, secure_url } = result.info;
+            
+            try {
+                const response = await fetch('/api/create-track', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        publicId: public_id,
+                        url: secure_url,
+                        // You can add more metadata here if available
+                    }),
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to create track');
+                }
+
+                const data = await response.json();
+                console.log('Created track:', data.track);
+            } catch (error) {
+                console.error('Error creating track:', error);
+            }
         }
+        
+        setIsUploading(false);
         widget.close();
     };
 
@@ -47,8 +77,9 @@ export default function Page() {
                     <button  
                         className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'
                         onClick={() => open()}
+                        disabled={isUploading}
                     >
-                        Upload an Audio
+                        {isUploading ? 'Uploading...' : 'Upload an Audio'}
                     </button>
                 )}
             </CldUploadWidget>

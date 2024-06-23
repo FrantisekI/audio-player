@@ -1,3 +1,26 @@
+import { v2 as cloudinary } from 'cloudinary';
+
+cloudinary.config({
+  cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+export async function POST(request: Request) {
+  const body = await request.json() as {
+    paramsToSign: Record<string, string>
+  };
+  
+  const { paramsToSign } = body;
+  const signature = cloudinary.utils.api_sign_request(paramsToSign,
+    process.env.CLOUDINARY_API_SECRET as string);
+
+  return Response.json({ signature });
+}
+
+
+
+
 /*import { v2 as cloudinary } from 'cloudinary';
 
 cloudinary.config({
@@ -14,7 +37,7 @@ export async function POST(request: Request){
   return Response.json({ signature });
 }*/
 
-import { v2 as cloudinary } from 'cloudinary';
+/*import { v2 as cloudinary } from 'cloudinary';
 import { Prisma, PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
@@ -56,4 +79,4 @@ export async function POST(request: Request) {
     console.error('Error creating example track:', error);
     return Response.json({ signature, error: 'Failed to create example track' }, { status: 500 });
   }
-}
+}*/
