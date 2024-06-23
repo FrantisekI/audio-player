@@ -43,6 +43,7 @@ export default function Page() {
                     body: JSON.stringify({
                         publicId: public_id,
                         url: secure_url,
+                        title: 'lol',
                         // You can add more metadata here if available
                     }),
                 });
@@ -53,6 +54,7 @@ export default function Page() {
 
                 const data = await response.json();
                 console.log('Created track:', data.track);
+                console.log('Response:', result.info.createdTrack);
             } catch (error) {
                 console.error('Error creating track:', error);
             }
