@@ -32,7 +32,7 @@ export default function Page() {
         console.log('Upload result:', result);
         
         if (result.info) {
-            const { public_id, secure_url } = result.info;
+            const { public_id, secure_url, original_filename } = result.info;
             
             try {
                 const response = await fetch('/api/create-track', {
@@ -43,7 +43,7 @@ export default function Page() {
                     body: JSON.stringify({
                         publicId: public_id,
                         url: secure_url,
-                        title: 'lol',
+                        title: original_filename || 'Unknown Track',
                         // You can add more metadata here if available
                     }),
                 });
@@ -72,7 +72,8 @@ export default function Page() {
                 options={{ 
                     sources: ['local', 'url', 'google_drive', 'dropbox'],
                     resourceType: 'video', // For audio files
-                    clientAllowedFormats: ['mp3', 'wav', 'ogg'] // Restrict to audio formats
+                    clientAllowedFormats: ['mp3', 'wav', 'ogg'], // Restrict to audio formats
+                    
                 }}
             >
                 {({ open }) => (
