@@ -42,12 +42,17 @@ graph TD
     UploadWidget -->|Requests Signature| APIsignFile{API: sign-file}
     APIsignFile -->|Returns Signature| UploadWidget
     UploadWidget -->|Uploads File| Cloudinary[(Cloudinary)]
-    Cloudinary -->|Returns File Info| UploadWidget
     UploadWidget -->|Sends File Info| APIcreateTrack{API: create-track}
     APIcreateTrack -->|Creates Entry| PostgreSQL[(PostgreSQL Database)]
     APIcreateTrack -->|Returns Track Info| UploadWidget
     UploadWidget -->|Updates UI| UserInterface
-    UserInterface -->|Initilize Play| AudioPlayer
+    UserInterface -->|Initilize Play| AudioPlayer(Audio Player)
+    AudioPlayer --> |Reqest Music| APIgetTrack{API: tracks}
+    Cloudinary --> |Get Audio File| APIgetTrack
+    PostgreSQL --> |Get File Info| APIgetTrack
+    APIgetTrack --> |Return File&Info| AudioPlayer
+    AudioPlayer --> |Play Music| UserInterface
+    
 
     subgraph "Frontend"
     UserInterface
@@ -58,6 +63,7 @@ graph TD
     subgraph "Backend"
     APIsignFile
     APIcreateTrack
+    APIgetTrack
     end
 
     subgraph "External Services"
