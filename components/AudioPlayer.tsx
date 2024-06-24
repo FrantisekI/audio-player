@@ -12,7 +12,7 @@ export default function AudioPlayer() {
     const [tracks, setTracks] = useState<Track[]>([]);
     const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
     const audioRef = useRef<HTMLAudioElement>(null);
-
+    
     useEffect(() => {
         fetch('/api/tracks')
             .then((res) => res.json())
