@@ -1,5 +1,6 @@
 import { Metadata, ResolvingMetadata } from 'next'
 import prisma from '@/lib/prisma'
+import PlayPauseButton from '@/components/PlayPauseButton'
 
 interface Track {
     id: string;
@@ -32,10 +33,10 @@ export async function generateMetadata(
 export default async function TrackDetailPage({ params }: Props) {
   const track = await prisma.track.findUnique({
     where: { id: String(params.id) },
-  })
+  }) as Track | null
 
   if (!track) {
-    return <div>Loading...</div>
+    return <div>Track not found</div>
   }
 
   return (
@@ -44,7 +45,9 @@ export default async function TrackDetailPage({ params }: Props) {
       <p className="text-xl mb-2">Artist: {track.artist}</p>
       <p className="mb-2">Album: {track.album}</p>
       <p className="mb-4">Duration: {Math.floor(track.duration / 60)}:{(track.duration % 60).toString().padStart(2, '0')}</p>
-      <audio src={track.filePath} controls className="w-full" />
+      <div className="mb-4">
+        <PlayPauseButton track={track} size={32} />
+      </div>
     </div>
   )
 }

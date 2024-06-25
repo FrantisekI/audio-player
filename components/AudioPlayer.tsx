@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Play, Pause, Info } from 'lucide-react';
+import { Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import PlayPauseButton from '@/components/PlayPauseButton';
 
 interface Track {
     id: string;
@@ -14,9 +15,6 @@ interface Track {
 
 export default function AudioPlayer() {
     const [tracks, setTracks] = useState<Track[]>([]);
-    const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
-    const [isPlaying, setIsPlaying] = useState(false);
-    const audioRef = useRef<HTMLAudioElement>(null);
     const router = useRouter();
 
     useEffect(() => {
@@ -25,49 +23,15 @@ export default function AudioPlayer() {
             .then(setTracks);
     }, []);
 
-    useEffect(() => {
-        if (currentTrack) {
-            document.title = `${currentTrack.title} - ${currentTrack.artist}`;
-        } else {
-            document.title = 'Audio Player';
-        }
-    }, [currentTrack]);
-
-    const playTrack = (track: Track) => {
-        setCurrentTrack(track);
-        setIsPlaying(true);
-        if (audioRef.current) {
-            audioRef.current.src = track.filePath;
-            audioRef.current.play();
-        }
-    };
-
-    const pauseTrack = () => {
-        setIsPlaying(false);
-        if (audioRef.current) {
-            audioRef.current.pause();
-        }
-    };
-
-    const togglePlayPause = (track: Track) => {
-        if (currentTrack?.id === track.id) {
-            if (isPlaying) {
-                pauseTrack();
-            } else {
-                setIsPlaying(true);
-                audioRef.current?.play();
-            }
-        } else {
-            playTrack(track);
-        }
-    };
-
-    const showMoreInfo = (trackId: string) => {
-        router.push(`/tracks/${trackId}`);
+    const showMoreInfo = (track: Track) => {
+        router.push(`/tracks/${track.id}`);
+        // Start playing the track when showing more info
+        localStorage.setItem('currentTrack', JSON.stringify(track));
+        window.dispatchEvent(new Event('storage'));
+        //window.dispatchEvent(new CustomEvent('audio-control', { detail: { action: 'play' } }));
     };
 
     return (
-        
         <div className="p-4 bg-gray-900 text-white min-h-screen">
             <h2 className="text-3xl font-bold mb-6">Audio Player</h2>
             <ul className="space-y-4">
@@ -78,14 +42,9 @@ export default function AudioPlayer() {
                     >
                         <span className="text-xl">{track.title} - {track.artist}</span>
                         <div className="space-x-2">
-                            <Button
-                                onClick={() => togglePlayPause(track)}
-                                className="w-12 h-12 flex items-center justify-center"
-                            >
-                                {currentTrack?.id === track.id && isPlaying ? <Pause size={24} /> : <Play size={24} />}
-                            </Button>
+                            <PlayPauseButton track={track} />
                             <Button 
-                                onClick={() => showMoreInfo(track.id)}
+                                onClick={() => showMoreInfo(track)}
                                 className="w-12 h-12 flex items-center justify-center"
                             >
                                 <Info size={24} />
@@ -94,18 +53,6 @@ export default function AudioPlayer() {
                     </li>
                 ))}
             </ul>
-            {currentTrack && (
-                <div className="mt-8">
-                    <p className="text-2xl mb-2">Now playing: {currentTrack.title} - {currentTrack.artist}</p>
-                    <audio
-                        ref={audioRef}
-                        controls
-                        className="w-full"
-                        onPlay={() => setIsPlaying(true)}
-                        onPause={() => setIsPlaying(false)}
-                    />
-                </div>
-            )}
         </div>
     );
 }
