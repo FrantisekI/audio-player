@@ -36,7 +36,13 @@ export default function PlayPauseComponent({ track, size = 24 }: PlayPauseProps)
         };
     }, [track.id]);
 
-    
+    useEffect(() => {
+        if (track) {
+            document.title = track.title;
+        } else {
+            document.title = 'Audio Player';
+        }
+    }, [track]);
 
     const togglePlayPause = () => {
         if (isPlaying) {
