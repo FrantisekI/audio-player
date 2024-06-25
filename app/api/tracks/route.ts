@@ -3,7 +3,9 @@ import prisma from '@/lib/prisma';
 
 export async function GET() {
   try {
-    const tracks = await prisma.track.findMany();
+    const tracks = await prisma.track.findMany({
+      include: { timestamps: true }
+    });
     return NextResponse.json(tracks);
   } catch (error) {
     return NextResponse.json({ error: 'Error fetching tracks' }, { status: 500 });
@@ -20,7 +22,11 @@ export async function POST(request: Request) {
         album: body.album,
         duration: body.duration,
         filePath: body.filePath,
+        timestamps: {
+          create: body.timestamps || []
+        }
       },
+      include: { timestamps: true }
     });
     return NextResponse.json(track);
   } catch (error) {

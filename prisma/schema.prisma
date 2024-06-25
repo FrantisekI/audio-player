@@ -13,12 +13,13 @@ datasource db {
 model Track {
   id        String   @id @default(cuid())
   title     String
-  artist    String
+  artist    String?
   album     String?
-  duration  Int
+  duration  Int?
   filePath  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  timestamps Timestamp[]
 }
 
 model User {
@@ -27,4 +28,13 @@ model User {
   name      String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Timestamp {
+  id          String   @id @default(cuid())
+  track       Track    @relation(fields: [trackId], references: [id])
+  trackId     String
+  time        Int
+  description String
+  createdAt   DateTime @default(now())
 }

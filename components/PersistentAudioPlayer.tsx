@@ -34,6 +34,29 @@ export default function PersistentAudioPlayer() {
             } else if (event.detail.action === 'pause') {
                 audioRef.current?.pause();
                 setIsPlaying(false);
+            } else if (event.detail.action === 'playFrom') {
+                if (event.detail.trackId === currentTrack?.id && audioRef.current) {
+                    audioRef.current.currentTime = event.detail.time;
+                    audioRef.current.play();
+                    setIsPlaying(true);
+                } else {
+                    // Load the track if it's not the current one
+                    const storedTrack = localStorage.getItem('currentTrack');
+                    if (storedTrack) {
+                        const parsedTrack = JSON.parse(storedTrack);
+                        if (parsedTrack.id === event.detail.trackId) {
+                            setCurrentTrack(parsedTrack);
+                            setIsPlaying(true);
+                            // Set the time after the audio is loaded
+                            audioRef.current?.addEventListener('loadedmetadata', () => {
+                                if (audioRef.current) {
+                                    audioRef.current.currentTime = event.detail.time;
+                                    audioRef.current.play();
+                                }
+                            }, { once: true });
+                        }
+                    }
+                }
             }
         };
 
@@ -45,7 +68,7 @@ export default function PersistentAudioPlayer() {
             window.removeEventListener('storage', handleStorageChange);
             window.removeEventListener('audio-control' as any, handleCustomEvent);
         };
-    }, []);
+    }, [currentTrack]);
 
     useEffect(() => {
         if (currentTrack && audioRef.current) {

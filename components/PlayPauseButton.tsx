@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 interface Track {
     id: string;
     title: string;
-    artist: string;
+    artist: string | null;
     filePath: string;
 }
 

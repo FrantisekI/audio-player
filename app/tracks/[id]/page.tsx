@@ -1,15 +1,7 @@
+// File: app/tracks/[id]/page.tsx
 import { Metadata, ResolvingMetadata } from 'next'
 import prisma from '@/lib/prisma'
-import PlayPauseButton from '@/components/PlayPauseButton'
-
-interface Track {
-    id: string;
-    title: string;
-    artist: string;
-    album: string;
-    duration: number;
-    filePath: string;
-}
+import TrackDetailClient from './TrackDetailClient'
 
 interface Props {
   params: { id: string }
@@ -33,21 +25,12 @@ export async function generateMetadata(
 export default async function TrackDetailPage({ params }: Props) {
   const track = await prisma.track.findUnique({
     where: { id: String(params.id) },
-  }) as Track | null
+    include: { timestamps: true }
+  })
 
   if (!track) {
     return <div>Track not found</div>
   }
 
-  return (
-    <div className="p-4 bg-gray-900 text-white min-h-screen">
-      <h1 className="text-3xl font-bold mb-4">{track.title}</h1>
-      <p className="text-xl mb-2">Artist: {track.artist}</p>
-      <p className="mb-2">Album: {track.album}</p>
-      <p className="mb-4">Duration: {Math.floor(track.duration / 60)}:{(track.duration % 60).toString().padStart(2, '0')}</p>
-      <div className="mb-4">
-        <PlayPauseButton track={track} size={32} />
-      </div>
-    </div>
-  )
+  return <TrackDetailClient track={track} />
 }
