@@ -3,11 +3,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Play, Pause } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import PlayPauseComponent from './PlayPauseButton';
 
 interface Track {
     id: string;
     title: string;
-    artist: string;
+    artist: string | null;
     filePath: string;
 }
 
@@ -39,7 +40,7 @@ export default function PersistentAudioPlayer() {
                     audioRef.current.currentTime = event.detail.time;
                     audioRef.current.play();
                     setIsPlaying(true);
-                } else {
+                } /*else {
                     // Load the track if it's not the current one
                     const storedTrack = localStorage.getItem('currentTrack');
                     if (storedTrack) {
@@ -52,11 +53,12 @@ export default function PersistentAudioPlayer() {
                                 if (audioRef.current) {
                                     audioRef.current.currentTime = event.detail.time;
                                     audioRef.current.play();
+                                    setIsPlaying(true);
                                 }
                             }, { once: true });
                         }
                     }
-                }
+                }*/
             }
         };
 
@@ -106,12 +108,8 @@ export default function PersistentAudioPlayer() {
                     <p className="font-bold">{currentTrack.title}</p>
                     <p className="text-sm">{currentTrack.artist}</p>
                 </div>
-                <Button
-                    onClick={togglePlayPause}
-                    className="w-10 h-10 flex items-center justify-center"
-                >
-                    {isPlaying ? <Pause size={20} /> : <Play size={20} />}
-                </Button>
+                
+                <PlayPauseComponent track={currentTrack} size={20} />
             </div>
             <div className="w-full bg-gray-600 rounded-full h-2.5">
                 <div 
@@ -121,8 +119,8 @@ export default function PersistentAudioPlayer() {
             </div>
             <audio
                 ref={audioRef}
-                onPlay={() => setIsPlaying(true)}
-                onPause={() => setIsPlaying(false)}
+                /*onPlay={() => setIsPlaying(true)}
+                onPause={() => setIsPlaying(false)}*/
                 onTimeUpdate={updateProgress}
             />
         </div>
