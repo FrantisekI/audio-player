@@ -12,9 +12,10 @@ interface Track {
 
 export default function PersistentAudioPlayer() {
     const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
-    
+
     const [progress, setProgress] = useState(0);
     const audioRef = useRef<HTMLAudioElement>(null);
+    const [currentTime, setCurrentTime] = useState(0);
 
     useEffect(() => {
         const handleStorageChange = () => {
@@ -25,29 +26,57 @@ export default function PersistentAudioPlayer() {
             } else {
                 setCurrentTrack(null);
             }
+            console.log('handleStorageChange', storedTrack);
         };
 
         const handleCustomEvent = (event: CustomEvent) => {
-            if (event.detail.action === 'play') {
+            const { action, track, resumePlayback, time } = event.detail;
+            if (action === 'play' && resumePlayback) {
                 console.log('play' + audioRef.current);
-                /*if (audioRef.current){
-                    audioRef.current.play();
-                }else{
-                    console.log('audioRef.current is null');
-                }*/
+                /*if (track.id === currentTrack?.id && audioRef.current) {
+                    audioRef.current.currentTime = currentTime;
+                } */
                 audioRef.current?.play();
-            } else if (event.detail.action === 'pause') {
-                console.log('pause' + audioRef.current);
-                audioRef.current?.pause();
+
+                /*if (track.id === currentTrack?.id && resumePlayback && audioRef.current) {
+                    console.log('resume playback');
+                    audioRef.current.currentTime = currentTime;
+                    audioRef.current.play();
+                } else {
+                    const storedTrack = localStorage.getItem('currentTrack');
+                    console.log('storedTrack', storedTrack);
+                    if (storedTrack) {
+                        
+                        const parsedTrack = JSON.parse(storedTrack);
+                        console.log('parsedTrack', parsedTrack);
+                        if (parsedTrack.id === event.detail.trackId) {
+                            setCurrentTrack(parsedTrack);
+                            // Set the time after the audio is loaded
+                            audioRef.current?.addEventListener('loadedmetadata', () => {
+                                if (audioRef.current) {
+                                    audioRef.current.currentTime = event.detail.time;
+                                    audioRef.current.play();
+                                }
+                            }, { once: true });
+                        }
+                    }}*/
+            } else if (action === 'pause') {
+                if (audioRef.current){
+                    console.log('pause' + audioRef.current);
+                    audioRef.current.pause();
+                    //setCurrentTime(audioRef.current.currentTime);
+                }else{
+                    console.log('no audio to pause');
+                }
             } else if (event.detail.action === 'playFrom') {
                 if (event.detail.trackId === currentTrack?.id && audioRef.current) {
-                    audioRef.current.currentTime = event.detail.time;
+                    audioRef.current.currentTime = time;
                     audioRef.current.play();
                     console.log('playFrom');
                 } else {
+                    const storedTrack = localStorage.getItem('currentTrack');
                     // Load the track if it's not the current one
                     console.log('load track');
-                    const storedTrack = localStorage.getItem('currentTrack');
                     if (storedTrack) {
                         const parsedTrack = JSON.parse(storedTrack);
                         if (parsedTrack.id === event.detail.trackId) {
@@ -59,8 +88,8 @@ export default function PersistentAudioPlayer() {
                                     audioRef.current.play();
                                 }
                             }, { once: true });
-                        }
-                    }
+                        } 
+                    }   
                 }
             }
         };
@@ -86,6 +115,8 @@ export default function PersistentAudioPlayer() {
         if (audioRef.current) {
             const value = (audioRef.current.currentTime / audioRef.current.duration) * 100;
             setProgress(value);
+            setCurrentTime(audioRef.current.currentTime);
+            //console.log('updateProgress', currentTime);
         }
     };
 
@@ -98,12 +129,12 @@ export default function PersistentAudioPlayer() {
                     <p className="font-bold">{currentTrack.title}</p>
                     <p className="text-sm">{currentTrack.artist}</p>
                 </div>
-                
+
                 <PlayPauseComponent track={currentTrack} size={20} />
             </div>
             <div className="w-full bg-gray-600 rounded-full h-2.5">
-                <div 
-                    className="bg-blue-600 h-2.5 rounded-full" 
+                <div
+                    className="bg-blue-600 h-2.5 rounded-full"
                     style={{ width: `${progress}%` }}
                 ></div>
             </div>
@@ -112,6 +143,16 @@ export default function PersistentAudioPlayer() {
                 /*onPlay={() => setIsPlaying(true)}
                 onPause={() => setIsPlaying(false)}*/
                 onTimeUpdate={updateProgress}
+                onEnded={() => {
+                    setCurrentTime(0);
+                    if (currentTrack) {
+                        localStorage.setItem('currentTrack', JSON.stringify({
+                            ...currentTrack, isPlaying: false
+                        }));
+                        window.dispatchEvent(new Event('storage'));
+                    }
+                    console.log('track ended');
+                }}
             />
         </div>
     );

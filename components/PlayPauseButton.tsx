@@ -32,6 +32,7 @@ export default function PlayPauseComponent({ track, size = 24 }: PlayPauseProps)
             if (storedTrack) {
                 const currentTrack = JSON.parse(storedTrack);
                 setIsPlaying(currentTrack.id === track.id);
+                console.log('-------' + isPlaying);
             }
         };
 
@@ -46,11 +47,20 @@ export default function PlayPauseComponent({ track, size = 24 }: PlayPauseProps)
     const togglePlayPause = () => {
         if (isPlaying) {
             localStorage.removeItem('currentTrack');
-            window.dispatchEvent(new CustomEvent('audio-control', { detail: { action: 'pause' } }));
+            window.dispatchEvent(new CustomEvent('audio-control', { 
+                detail: {
+                     action: 'pause', 
+                     track,
+                     resumePlayback: true } }));
             console.log('pause from playpausebutton');
         } else {
             localStorage.setItem('currentTrack', JSON.stringify(track));
-            window.dispatchEvent(new CustomEvent('audio-control', { detail: { action: 'play', track } }));
+            window.dispatchEvent(new CustomEvent('audio-control', {
+                detail: {
+                     action: 'play', 
+                     track,
+                     resumePlayback: true
+                    } }));
             console.log('play from playpausebutton' + track.title);
         }
         setIsPlaying(!isPlaying);
