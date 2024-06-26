@@ -14,6 +14,7 @@ interface TimestampListProps {
 
 export default function TimestampList({ timestamps, trackId }: TimestampListProps) {
   const playFromTimestamp = (time: number) => {
+    console.log('playFromTimestamp', time);
     window.dispatchEvent(new CustomEvent('audio-control', { 
       detail: { action: 'playFrom', trackId, time } 
     }));

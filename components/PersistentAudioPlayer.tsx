@@ -1,9 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Play, Pause } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import PlayPauseComponent from './PlayPauseButton';
+import PlayPauseComponent from '@/components/PlayPauseButton';
 
 interface Track {
     id: string;
@@ -14,7 +12,7 @@ interface Track {
 
 export default function PersistentAudioPlayer() {
     const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
-    const [isPlaying, setIsPlaying] = useState(false);
+    
     const [progress, setProgress] = useState(0);
     const audioRef = useRef<HTMLAudioElement>(null);
 
@@ -22,43 +20,48 @@ export default function PersistentAudioPlayer() {
         const handleStorageChange = () => {
             const storedTrack = localStorage.getItem('currentTrack');
             if (storedTrack) {
-                const parsedTrack = JSON.parse(storedTrack);
-                setCurrentTrack(parsedTrack);
-                setIsPlaying(true);
+                //const parsedTrack = JSON.parse(storedTrack);
+                setCurrentTrack(JSON.parse(storedTrack));
+            } else {
+                setCurrentTrack(null);
             }
         };
 
         const handleCustomEvent = (event: CustomEvent) => {
             if (event.detail.action === 'play') {
+                console.log('play' + audioRef.current);
+                /*if (audioRef.current){
+                    audioRef.current.play();
+                }else{
+                    console.log('audioRef.current is null');
+                }*/
                 audioRef.current?.play();
-                setIsPlaying(true);
             } else if (event.detail.action === 'pause') {
+                console.log('pause' + audioRef.current);
                 audioRef.current?.pause();
-                setIsPlaying(false);
             } else if (event.detail.action === 'playFrom') {
                 if (event.detail.trackId === currentTrack?.id && audioRef.current) {
                     audioRef.current.currentTime = event.detail.time;
                     audioRef.current.play();
-                    setIsPlaying(true);
-                } /*else {
+                    console.log('playFrom');
+                } else {
                     // Load the track if it's not the current one
+                    console.log('load track');
                     const storedTrack = localStorage.getItem('currentTrack');
                     if (storedTrack) {
                         const parsedTrack = JSON.parse(storedTrack);
                         if (parsedTrack.id === event.detail.trackId) {
                             setCurrentTrack(parsedTrack);
-                            setIsPlaying(true);
                             // Set the time after the audio is loaded
                             audioRef.current?.addEventListener('loadedmetadata', () => {
                                 if (audioRef.current) {
                                     audioRef.current.currentTime = event.detail.time;
                                     audioRef.current.play();
-                                    setIsPlaying(true);
                                 }
                             }, { once: true });
                         }
                     }
-                }*/
+                }
             }
         };
 
@@ -70,27 +73,14 @@ export default function PersistentAudioPlayer() {
             window.removeEventListener('storage', handleStorageChange);
             window.removeEventListener('audio-control' as any, handleCustomEvent);
         };
-    }, [currentTrack]);
+    }, []);
 
     useEffect(() => {
         if (currentTrack && audioRef.current) {
             audioRef.current.src = currentTrack.filePath;
-            if (isPlaying) {
-                audioRef.current.play();
-            }
+            audioRef.current.play();
         }
     }, [currentTrack]);
-
-    const togglePlayPause = () => {
-        if (audioRef.current) {
-            if (isPlaying) {
-                audioRef.current.pause();
-            } else {
-                audioRef.current.play();
-            }
-            setIsPlaying(!isPlaying);
-        }
-    };
 
     const updateProgress = () => {
         if (audioRef.current) {

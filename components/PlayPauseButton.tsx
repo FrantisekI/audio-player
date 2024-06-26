@@ -18,6 +18,13 @@ interface PlayPauseProps {
 
 export default function PlayPauseComponent({ track, size = 24 }: PlayPauseProps) {
     const [isPlaying, setIsPlaying] = useState(false);
+    /*useEffect(() => {
+        if (track) {
+            document.title = track.title;
+        } else {
+            document.title = 'Audio Player';
+        }
+    }, [track]);*/
 
     useEffect(() => {
         const handleStorageChange = () => {
@@ -35,22 +42,16 @@ export default function PlayPauseComponent({ track, size = 24 }: PlayPauseProps)
             window.removeEventListener('storage', handleStorageChange);
         };
     }, [track.id]);
-
-    useEffect(() => {
-        if (track) {
-            document.title = track.title;
-        } else {
-            document.title = 'Audio Player';
-        }
-    }, [track]);
-
+    
     const togglePlayPause = () => {
         if (isPlaying) {
             localStorage.removeItem('currentTrack');
             window.dispatchEvent(new CustomEvent('audio-control', { detail: { action: 'pause' } }));
+            console.log('pause from playpausebutton');
         } else {
             localStorage.setItem('currentTrack', JSON.stringify(track));
             window.dispatchEvent(new CustomEvent('audio-control', { detail: { action: 'play', track } }));
+            console.log('play from playpausebutton' + track.title);
         }
         setIsPlaying(!isPlaying);
         window.dispatchEvent(new Event('storage'));
