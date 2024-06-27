@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import { Music } from 'lucide-react';
 import PlayPauseComponent from '@/components/PlayPauseButton';
 
 interface Track {
@@ -32,12 +33,12 @@ export default function PersistentAudioPlayer() {
         const handleCustomEvent = (event: CustomEvent) => {
             const { action, track, resumePlayback, time } = event.detail;
             if (action === 'play' && resumePlayback) {
-                console.log('play' + audioRef.current);
-                /*if (track.id === currentTrack?.id && audioRef.current) {
-                    audioRef.current.currentTime = currentTime;
-                } */
                 audioRef.current?.play();
-
+                console.log('play ' + audioRef.current);
+                if (track.id === currentTrack?.id && audioRef.current) {
+                    audioRef.current.currentTime = currentTime;
+                }
+                
                 /*if (track.id === currentTrack?.id && resumePlayback && audioRef.current) {
                     console.log('resume playback');
                     audioRef.current.currentTime = currentTime;
@@ -64,9 +65,7 @@ export default function PersistentAudioPlayer() {
                 if (audioRef.current){
                     console.log('pause' + audioRef.current);
                     audioRef.current.pause();
-                    //setCurrentTime(audioRef.current.currentTime);
-                }else{
-                    console.log('no audio to pause');
+                    setCurrentTime(audioRef.current.currentTime);
                 }
             } else if (event.detail.action === 'playFrom') {
                 if (event.detail.trackId === currentTrack?.id && audioRef.current) {
@@ -120,40 +119,45 @@ export default function PersistentAudioPlayer() {
         }
     };
 
-    if (!currentTrack) return null;
 
     return (
         <div className="fixed bottom-0 left-0 right-0 bg-gray-800 p-4">
             <div className="flex items-center justify-between mb-2">
                 <div className="text-white">
-                    <p className="font-bold">{currentTrack.title}</p>
-                    <p className="text-sm">{currentTrack.artist}</p>
+                    {currentTrack ? (
+                        <>
+                            <p className="font-bold">{currentTrack.title}</p>
+                            <p className="text-sm">{currentTrack.artist}</p>
+                        </>
+                    ) : (
+                        <p className="font-bold">No track selected</p>
+                    )}
                 </div>
-
-                <PlayPauseComponent track={currentTrack} size={20} />
+                {currentTrack ? (
+                    <PlayPauseComponent track={currentTrack} size={20} />
+                ) : (
+                    <Music size={20} className="text-gray-500" />
+                )}
             </div>
             <div className="w-full bg-gray-600 rounded-full h-2.5">
-                <div
-                    className="bg-blue-600 h-2.5 rounded-full"
+                <div 
+                    className="bg-blue-600 h-2.5 rounded-full" 
                     style={{ width: `${progress}%` }}
                 ></div>
             </div>
-            <audio
-                ref={audioRef}
-                /*onPlay={() => setIsPlaying(true)}
-                onPause={() => setIsPlaying(false)}*/
-                onTimeUpdate={updateProgress}
-                onEnded={() => {
-                    setCurrentTime(0);
-                    if (currentTrack) {
-                        localStorage.setItem('currentTrack', JSON.stringify({
-                            ...currentTrack, isPlaying: false
-                        }));
-                        window.dispatchEvent(new Event('storage'));
-                    }
-                    console.log('track ended');
-                }}
-            />
+            {currentTrack && (
+                <audio
+                    ref={audioRef}
+                    onTimeUpdate={updateProgress}
+                    onEnded={() => {
+                        setCurrentTime(0);
+                        if (currentTrack) {
+                            localStorage.setItem('currentTrack', JSON.stringify({ ...currentTrack, isPlaying: false }));
+                            window.dispatchEvent(new Event('storage'));
+                        }
+                    }}
+                />
+            )}
         </div>
     );
 }
