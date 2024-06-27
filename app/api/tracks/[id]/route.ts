@@ -1,20 +1,22 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
-  const id = params.id;
-
+export async function GET(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
   try {
     const track = await prisma.track.findUnique({
-      where: { id: String(id) },
+      where: { id: params.id },
+      include: { timestamps: true }
     });
 
-    if (track) {
-      return NextResponse.json(track);
-    } else {
-      return NextResponse.json({ message: 'Track not found' }, { status: 404 });
+    if (!track) {
+      return NextResponse.json({ error: 'Track not found' }, { status: 404 });
     }
+
+    return NextResponse.json(track);
   } catch (error) {
-    return NextResponse.json({ message: 'Error fetching track', error }, { status: 500 });
+    return NextResponse.json({ error: 'Error fetching track' }, { status: 500 });
   }
 }
