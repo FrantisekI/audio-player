@@ -7,6 +7,9 @@ interface Props {
   params: { id: string }
 }
 
+
+
+
 export async function generateMetadata(
   { params }: Props,
   parent: ResolvingMetadata
@@ -31,6 +34,10 @@ export default async function TrackDetailPage({ params }: Props) {
   if (!track) {
     return <div>Track not found</div>
   }
-
-  return <TrackDetailClient track={track} />
+  
+  try {
+    return <TrackDetailClient track={track} />
+  } catch (error) {
+    return <div>Error loading track</div>
+  }
 }

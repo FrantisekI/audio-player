@@ -14,9 +14,9 @@ interface Timestamp {
 interface Track {
   id: string;
   title: string;
-  artist: string;
-  album: string;
-  duration: number;
+  artist: string | null;
+  album: string | null;
+  duration: number | null;
   filePath: string;
   timestamps: Timestamp[];
 }
@@ -42,7 +42,8 @@ export default function TrackDetailClient({ track: initialTrack }: Props) {
       <h1 className="text-3xl font-bold mb-4">{track.title}</h1>
       <p className="text-xl mb-2">Artist: {track.artist}</p>
       <p className="mb-2">Album: {track.album}</p>
-      <p className="mb-4">Duration: {Math.floor(track.duration / 60)}:{(track.duration % 60).toString().padStart(2, '0')}</p>
+      {//<p className="mb-4">Duration: {Math.floor(track.duration / 60)}:{(track.duration % 60).toString().padStart(2, '0')}</p>
+}
       <div className="mb-4">
         <PlayPauseButton track={track} size={32} />
       </div>
